@@ -354,36 +354,29 @@
         };
         // ==========================================
 
-
-        // 影片播放清單 (已依照您的要求重新排序)
-        // 順序: 原始 -> Ball -> Court -> Pose -> 整合
+        // 影片播放清單
         const videoData = [
             {
-                // Index 0: 原始影片
                 id: YOUTUBE_IDS.ORIGIN,
                 title: "原始影片 (Input Video)",
                 desc: "未經任何 AI 處理的原始輸入影片，用於對照效果"
             },
             {
-                // Index 1: 排球追蹤
                 id: YOUTUBE_IDS.BALL,
                 title: "排球追蹤 (Ball Tracking)",
                 desc: "使用 YOLOv11s 進行排球偵測與卡爾曼濾波/邏輯追蹤"
             },
             {
-                // Index 2: 場地標線
                 id: YOUTUBE_IDS.COURT,
                 title: "場地標線 (Court Detection)",
                 desc: "手動標記或自動偵測後的 14 點場地投影"
             },
             {
-                // Index 3: 動作辨識
                 id: YOUTUBE_IDS.POSE,
                 title: "球員行為辨識 (Player Action)",
                 desc: "YOLO-Pose 結合規則庫與 RL 進行動作分類 (Set, Spike, Block)"
             },
             {
-                // Index 4: 系統整合 (最後展示成果)
                 id: YOUTUBE_IDS.ALL,
                 title: "系統整合展示 (Final Result)",
                 desc: "結合排球軌跡、場地標線與球員行為辨識的完整輸出"
@@ -404,7 +397,6 @@
             player = new YT.Player('youtube-player', {
                 height: '100%',
                 width: '100%',
-                // 預設載入第 0 個 (原始影片)
                 videoId: videoData[0].id,
                 playerVars: { 'playsinline': 1, 'rel': 0, 'controls': 1 },
                 events: { 'onStateChange': onPlayerStateChange }
@@ -412,7 +404,17 @@
         }
 
         function onPlayerStateChange(event) {
+            // 1. 更新播放按鈕圖示
             updatePlayBtnIcon(event.data == YT.PlayerState.PLAYING);
+
+            // 2. 【關鍵修正】當影片開始播放時，強制套用目前滑桿的速度
+            // 這樣可以解決切換影片後速度重置的問題
+            if (event.data == YT.PlayerState.PLAYING) {
+                const currentRate = parseFloat(speedRange.value);
+                if (player && player.setPlaybackRate) {
+                    player.setPlaybackRate(currentRate);
+                }
+            }
         }
 
         function switchVideo(index) {
@@ -429,7 +431,7 @@
             // 載入新影片
             if (player && player.loadVideoById) {
                 player.loadVideoById(videoData[index].id);
-                player.setPlaybackRate(parseFloat(speedRange.value));
+                // 注意：這裡移除了原本的 setPlaybackRate，改由 onPlayerStateChange 統一處理
             }
         }
 
@@ -450,8 +452,10 @@
             player.seekTo(player.getCurrentTime() + seconds, true);
         }
 
+        // 【修正】更穩定的速度設定函式
         function setSpeed() {
-            if (!player) return;
+            if (!player || !player.setPlaybackRate) return;
+
             const rate = parseFloat(speedRange.value);
             player.setPlaybackRate(rate);
             speedDisplay.textContent = rate + "x";
