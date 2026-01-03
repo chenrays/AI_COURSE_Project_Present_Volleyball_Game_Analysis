@@ -199,24 +199,28 @@
         
         <ul class="menu-list">
             <li class="menu-item active" onclick="switchVideo(0)">
-                <i class="fa-solid fa-layer-group"></i>
-                <span>系統整合展示 (All)</span>
+                <i class="fa-solid fa-file-video"></i>
+                <span>原始影片 (Input)</span>
             </li>
+            
             <li class="menu-item" onclick="switchVideo(1)">
                 <i class="fa-solid fa-baseball"></i>
                 <span>排球追蹤 (Ball)</span>
             </li>
+
             <li class="menu-item" onclick="switchVideo(2)">
                 <i class="fa-solid fa-vector-square"></i>
                 <span>場地標線 (Court)</span>
             </li>
+
             <li class="menu-item" onclick="switchVideo(3)">
                 <i class="fa-solid fa-person-running"></i>
                 <span>動作辨識 (Pose/RL)</span>
             </li>
+
             <li class="menu-item" onclick="switchVideo(4)">
-                <i class="fa-solid fa-file-video"></i>
-                <span>原始影片 (Original)</span>
+                <i class="fa-solid fa-layer-group"></i>
+                <span>系統整合展示 (Result)</span>
             </li>
         </ul>
 
@@ -247,8 +251,8 @@
         </div>
 
         <div class="info-panel">
-            <h2 class="info-title" id="videoTitle">系統整合展示</h2>
-            <p id="videoDesc">YOLOv11 Ball + Court Lines + Player Action Recognition 整合結果</p>
+            <h2 class="info-title" id="videoTitle">原始影片 (Input Video)</h2>
+            <p id="videoDesc">未經任何 AI 處理的原始輸入影片，用於對照效果</p>
         </div>
     </div>
 
@@ -257,44 +261,49 @@
     <script>
         // ==========================================
         // 🔧 使用者設定區 (User Configuration)
-        // 請將你的 YouTube ID 填入下方對應位置
         // ==========================================
         const YOUTUBE_IDS = {
-            ALL:      "CEBqN_nKrvQ",    // 1. 系統整合展示
-            BALL:     "WlAtBO79wmk",   // 2. 排球追蹤
-            COURT:    "g4LiFDAhquc",  // 3. 場地標線
-            POSE:     "tmJCyD4BH-c",   // 4. 動作辨識
-            ORIGIN:   "elp1-DmyPKw"  // 5. 原始影片
+            ALL:      "CEBqN_nKrvQ",    // 系統整合展示
+            BALL:     "WlAtBO79wmk",    // 排球追蹤
+            COURT:    "g4LiFDAhquc",    // 場地標線
+            POSE:     "tmJCyD4BH-c",    // 動作辨識
+            ORIGIN:   "elp1-DmyPKw"     // 原始影片
         };
         // ==========================================
 
 
-        // 影片資訊結構 (自動讀取上方設定)
+        // 影片播放清單 (已依照您的要求重新排序)
+        // 順序: 原始 -> Ball -> Court -> Pose -> 整合
         const videoData = [
             {
-                id: YOUTUBE_IDS.ALL,
-                title: "系統整合展示 (Integrated)",
-                desc: "結合排球軌跡、場地標線與球員行為辨識的完整輸出"
+                // Index 0: 原始影片
+                id: YOUTUBE_IDS.ORIGIN,
+                title: "原始影片 (Input Video)",
+                desc: "未經任何 AI 處理的原始輸入影片，用於對照效果"
             },
             {
+                // Index 1: 排球追蹤
                 id: YOUTUBE_IDS.BALL,
                 title: "排球追蹤 (Ball Tracking)",
                 desc: "使用 YOLOv11s 進行排球偵測與卡爾曼濾波/邏輯追蹤"
             },
             {
+                // Index 2: 場地標線
                 id: YOUTUBE_IDS.COURT,
                 title: "場地標線 (Court Detection)",
                 desc: "手動標記或自動偵測後的 14 點場地投影"
             },
             {
+                // Index 3: 動作辨識
                 id: YOUTUBE_IDS.POSE,
                 title: "球員行為辨識 (Player Action)",
                 desc: "YOLO-Pose 結合規則庫與 RL 進行動作分類 (Set, Spike, Block)"
             },
             {
-                id: YOUTUBE_IDS.ORIGIN,
-                title: "原始影片 (Input Video)",
-                desc: "未經任何 AI 處理的原始輸入影片，用於對照效果"
+                // Index 4: 系統整合 (最後展示成果)
+                id: YOUTUBE_IDS.ALL,
+                title: "系統整合展示 (Final Result)",
+                desc: "結合排球軌跡、場地標線與球員行為辨識的完整輸出"
             }
         ];
 
@@ -312,6 +321,7 @@
             player = new YT.Player('youtube-player', {
                 height: '100%',
                 width: '100%',
+                // 預設載入第 0 個 (原始影片)
                 videoId: videoData[0].id,
                 playerVars: { 'playsinline': 1, 'rel': 0, 'controls': 1 },
                 events: { 'onStateChange': onPlayerStateChange }
@@ -324,11 +334,16 @@
 
         function switchVideo(index) {
             currentVideoIndex = index;
+            
+            // 更新選單激活狀態
             menuItems.forEach(item => item.classList.remove('active'));
             menuItems[index].classList.add('active');
+            
+            // 更新標題與描述
             titleEl.textContent = videoData[index].title;
             descEl.textContent = videoData[index].desc;
             
+            // 載入新影片
             if (player && player.loadVideoById) {
                 player.loadVideoById(videoData[index].id);
                 player.setPlaybackRate(parseFloat(speedRange.value));
@@ -374,4 +389,3 @@
     </script>
 </body>
 </html>
-
