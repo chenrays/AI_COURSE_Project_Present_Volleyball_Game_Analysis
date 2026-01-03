@@ -1,395 +1,352 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>排球 AI 分析成果展示</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Phosphor Icons -->
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-
+    <title>排球 AI 分析系統展示</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --sidebar-width: 260px;
+            --sidebar-collapsed-width: 60px;
+            --primary-color: #3b82f6;
+            --bg-dark: #0f172a;
+            --bg-panel: #1e293b;
+            --text-light: #f1f5f9;
+            --text-gray: #94a3b8;
+            --transition-speed: 0.3s;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #020617;
-            color: #f8fafc;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
         }
 
-        .glass-sidebar {
-            background: rgba(15, 23, 42, 0.95);
-            border-right: 1px solid rgba(148, 163, 184, 0.1);
+        /* --- 側邊欄樣式 --- */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--bg-panel);
+            border-right: 1px solid #334155;
+            display: flex;
+            flex-direction: column;
+            transition: width var(--transition-speed) ease;
+            position: relative;
+            flex-shrink: 0;
         }
 
-        .glass-panel {
-            background: rgba(30, 41, 59, 0.6);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
+        .sidebar.collapsed { width: var(--sidebar-collapsed-width); }
+        
+        .logo-area {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            border-bottom: 1px solid #334155;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        
+        .sidebar.collapsed .logo-area span { opacity: 0; }
+        .sidebar.collapsed .logo-area i { margin-right: 0; font-size: 1.5rem; }
+
+        .toggle-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary-color);
+            border: none;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform var(--transition-speed);
+            z-index: 10;
         }
 
-        .glass-control-bar {
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(12px);
-            border-top: 1px solid rgba(148, 163, 184, 0.1);
+        .sidebar.collapsed .toggle-btn { right: 15px; transform: rotate(180deg); }
+
+        .menu-list { list-style: none; margin-top: 20px; padding: 0 10px; }
+        .menu-item {
+            padding: 15px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            color: var(--text-gray);
+            transition: all 0.2s;
+            white-space: nowrap;
+            overflow: hidden;
         }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
+        .menu-item:hover { background-color: #334155; color: white; }
+        .menu-item.active { background-color: var(--primary-color); color: white; }
+        .menu-item i { min-width: 30px; font-size: 1.1rem; text-align: center; }
+        .menu-item span { margin-left: 10px; opacity: 1; transition: opacity 0.2s; }
+        .sidebar.collapsed .menu-item span { opacity: 0; display: none; }
+
+        /* --- 主內容區 --- */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
         }
 
-        ::-webkit-scrollbar-track {
-            background: transparent;
+        .video-container {
+            width: 100%;
+            max-width: 1000px;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            position: relative;
         }
 
-        ::-webkit-scrollbar-thumb {
+        video { width: 100%; height: auto; display: block; }
+
+        /* --- 控制面板 --- */
+        .controls {
+            width: 100%;
+            max-width: 1000px;
+            background: var(--bg-panel);
+            padding: 15px 25px;
+            border-radius: 12px;
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn-group { display: flex; align-items: center; gap: 10px; }
+
+        button.ctrl-btn {
             background: #334155;
-            border-radius: 3px;
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.9rem;
+        }
+        button.ctrl-btn:hover { background: #475569; }
+        button.ctrl-btn:active { transform: scale(0.95); }
+        button.ctrl-btn.primary { background: var(--primary-color); }
+        button.ctrl-btn.primary:hover { background: #2563eb; }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #0f172a;
+            padding: 5px 15px;
+            border-radius: 20px;
         }
 
-        .btn-speed {
-            @apply px-3 py-1 text-xs font-mono rounded bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition data-[active=true]:bg-blue-600 data-[active=true]:text-white;
+        input[type=range] { width: 100px; cursor: pointer; }
+        
+        .info-panel {
+            margin-top: 20px;
+            text-align: center;
+            color: var(--text-gray);
         }
+        .info-title { font-size: 1.5rem; color: white; margin-bottom: 5px; }
 
-        .nav-item {
-            @apply w-full flex items-center gap-3 px-4 py-3 rounded-xl mb-1 text-slate-400 hover:bg-slate-800/50 hover:text-white transition cursor-pointer border border-transparent;
-        }
-
-        .nav-item.active {
-            @apply bg-blue-600/10 border-blue-600/20 text-blue-400 font-medium shadow-[0_0_15px_rgba(37, 99, 235, 0.15)];
-        }
     </style>
 </head>
+<body>
 
-<body class="h-screen flex overflow-hidden selection:bg-blue-500/30">
+    <div class="sidebar" id="sidebar">
+        <div class="logo-area">
+            <i class="fa-solid fa-volleyball"></i>
+            <span style="margin-left: 10px;">Volley AI</span>
+        </div>
+        
+        <ul class="menu-list">
+            <li class="menu-item active" onclick="switchVideo(0)">
+                <i class="fa-solid fa-layer-group"></i>
+                <span>系統整合展示 (All)</span>
+            </li>
+            <li class="menu-item" onclick="switchVideo(1)">
+                <i class="fa-solid fa-baseball"></i>
+                <span>排球追蹤 (Ball)</span>
+            </li>
+            <li class="menu-item" onclick="switchVideo(2)">
+                <i class="fa-solid fa-vector-square"></i>
+                <span>場地標線 (Court)</span>
+            </li>
+            <li class="menu-item" onclick="switchVideo(3)">
+                <i class="fa-solid fa-person-running"></i>
+                <span>動作辨識 (Pose/RL)</span>
+            </li>
+        </ul>
 
-    <!-- Sidebar -->
-    <aside class="w-72 glass-sidebar flex flex-col p-4 shrink-0 z-20">
-        <div class="mb-8 px-2 mt-2">
-            <h1
-                class="text-xl font-bold flex items-center gap-2 bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
-                <i class="ph ph-monitor-play text-blue-500"></i>
-                成果展示系統
-            </h1>
-            <p class="text-xs text-slate-500 mt-1 pl-8">AI Analysis Visualization</p>
+        <button class="toggle-btn" onclick="toggleSidebar()">
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
+    </div>
+
+    <div class="main-content">
+        
+        <div class="video-container">
+            <video id="mainPlayer" playsinline onclick="togglePlay()">
+                <source src="" type="video/mp4">
+                您的瀏覽器不支援 HTML5 影片。
+            </video>
         </div>
 
-        <nav class="flex-1 space-y-2">
-            <!-- Items generated by JS -->
-            <div id="nav-container"></div>
-        </nav>
-
-        <div class="mt-auto p-4 bg-slate-900/50 rounded-xl border border-slate-800">
-            <h4 class="text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">影片狀態</h4>
-            <div id="status-container" class="space-y-2">
-                <!-- Status items generated by JS -->
-            </div>
-            <button onclick="document.getElementById('file-input-all').click()"
-                class="mt-4 w-full py-2 text-xs bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition border border-slate-700 flex items-center justify-center gap-2">
-                <i class="ph ph-folder-open"></i>
-                批量載入影片 (選4個)
-            </button>
-            <input type="file" id="file-input-all" multiple accept="video/mp4" class="hidden">
-        </div>
-    </aside>
-
-    <!-- Main Content -->
-    <main
-        class="flex-1 flex flex-col relative bg-[url('https://cdn.pixabay.com/photo/2020/05/17/20/34/volleyball-5183489_1280.jpg')] bg-cover bg-center">
-        <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"></div>
-
-        <!-- Video Player Container -->
-        <div class="flex-1 relative z-10 p-8 flex flex-col items-center justify-center">
-
-            <div class="w-full max-w-5xl aspect-video glass-panel overflow-hidden shadow-2xl relative group">
-                <video id="main-video" class="w-full h-full object-contain bg-black" playsinline></video>
-
-                <!-- Overlay Play Button -->
-                <div id="overlay-play"
-                    class="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition duration-300 pointer-events-none">
-                    <div
-                        class="w-16 h-16 rounded-full bg-white/10 backdrop-blur flex items-center justify-center border border-white/20">
-                        <i class="ph ph-play-fill text-3xl text-white ml-1"></i>
-                    </div>
-                </div>
-
-                <!-- Empty State -->
-                <div id="empty-placeholder"
-                    class="absolute inset-0 bg-black flex flex-col items-center justify-center text-slate-500 z-20">
-                    <i class="ph ph-film-slate text-6xl mb-4 opacity-50"></i>
-                    <p class="text-lg font-medium text-slate-400">請先載入影片檔案</p>
-                    <p class="text-xs text-slate-600 mt-2">點擊左下角批量載入或單獨上傳</p>
-                </div>
+        <div class="controls">
+            <div class="btn-group">
+                <button class="ctrl-btn" onclick="skip(-5)"><i class="fa-solid fa-backward"></i> -5s</button>
+                <button class="ctrl-btn primary" id="playBtn" onclick="togglePlay()">
+                    <i class="fa-solid fa-play"></i> 播放
+                </button>
+                <button class="ctrl-btn" onclick="skip(5)">+5s <i class="fa-solid fa-forward"></i></button>
             </div>
 
-            <div class="w-full max-w-5xl mt-4 flex items-center justify-between px-2">
-                <h2 id="current-title" class="text-2xl font-bold text-white drop-shadow-md">整合分析展示</h2>
-                <div class="flex items-center gap-2">
-                    <input type="file" id="single-upload" class="hidden" accept="video/mp4">
-                    <button class="text-xs text-blue-400 hover:text-blue-300 underline" onclick="triggerSingleUpload()">
-                        更換此頁面影片
-                    </button>
-                </div>
+            <div class="speed-control">
+                <span style="font-size: 0.9rem;"><i class="fa-solid fa-gauge-high"></i> 速度:</span>
+                <input type="range" id="speedRange" min="0.25" max="2.0" step="0.25" value="1.0" oninput="updateSpeed()">
+                <span id="speedDisplay" style="width: 40px; text-align: right;">1.0x</span>
             </div>
         </div>
 
-        <!-- Bottom Control Bar -->
-        <div class="h-24 glass-control-bar shrink-0 z-20 px-8 py-4 flex flex-col justify-center gap-2">
-
-            <!-- Seek Slider -->
-            <div class="flex items-center gap-4 group">
-                <span id="time-curr" class="text-xs font-mono text-slate-400 w-12 text-right">00:00</span>
-                <div class="flex-1 relative h-1 bg-slate-700/50 rounded-full cursor-pointer group-hover:h-2 transition-all duration-300"
-                    id="progress-container">
-                    <div id="progress-fill"
-                        class="absolute top-0 left-0 h-full bg-blue-500 rounded-full w-0 shadow-[0_0_10px_rgba(59,130,246,0.5)]">
-                    </div>
-                </div>
-                <span id="time-dur" class="text-xs font-mono text-slate-400 w-12">00:00</span>
-            </div>
-
-            <!-- Buttons Row -->
-            <div class="flex items-center justify-between">
-
-                <div class="flex items-center gap-4">
-                    <button id="btn-play"
-                        class="w-10 h-10 rounded-full bg-white text-slate-900 flex items-center justify-center hover:bg-blue-500 hover:text-white transition shadow-lg hover:shadow-blue-500/30 hover:scale-105 active:scale-95">
-                        <i class="ph ph-play-fill text-xl ml-0.5"></i>
-                    </button>
-
-                    <div class="h-6 w-px bg-slate-700 mx-2"></div>
-
-                    <button class="text-slate-400 hover:text-white transition p-2 rounded hover:bg-slate-800"
-                        onclick="skip(-5)">
-                        <i class="ph ph-rewind-five text-xl"></i>
-                    </button>
-                    <button class="text-slate-400 hover:text-white transition p-2 rounded hover:bg-slate-800"
-                        onclick="skip(5)">
-                        <i class="ph ph-fast-forward-five text-xl"></i>
-                    </button>
-                </div>
-
-                <!-- Speed Control -->
-                <div class="flex items-center gap-2 bg-slate-900/50 p-1 rounded-lg border border-slate-800">
-                    <span class="text-[10px] text-slate-500 px-2 font-bold uppercase">Speed</span>
-                    <button class="btn-speed" data-speed="0.25">0.25x</button>
-                    <button class="btn-speed" data-speed="0.5">0.5x</button>
-                    <button class="btn-speed active" data-speed="1" data-active="true">1.0x</button>
-                    <button class="btn-speed" data-speed="1.5">1.5x</button>
-                    <button class="btn-speed" data-speed="2">2.0x</button>
-                </div>
-            </div>
+        <div class="info-panel">
+            <h2 class="info-title" id="videoTitle">系統整合展示</h2>
+            <p id="videoDesc">YOLOv11 Ball + Court Lines + Player Action Recognition 整合結果</p>
         </div>
 
-    </main>
+    </div>
 
     <script>
-        // Data Structure
-        const VIEWS = [
-            { id: 'integrated', title: '整合分析展示 (All Features)', icon: 'ph-circles-three-plus', file: null, path: '1207_Complete_Output_ALL_Ver1.mp4' },
-            { id: 'ball', title: '排球軌跡分析 (Ball Tracking)', icon: 'ph-volleyball', file: null, path: '1207_Complete_Output_Ball_Ver1.mp4' },
-            { id: 'court', title: '場地標線偵測 (Court Lines)', icon: 'ph-corners-out', file: null, path: '1207_Complete_Output_COURT_Ver1.mp4' },
-            { id: 'player', title: '球員追蹤與動作 (Player Pose)', icon: 'ph-person-simple-run', file: null, path: '1207_Complete_Output_PLAYER_Ver1.mp4' }
+        // ==========================================
+        // 🔧 請在這裡修改你的影片檔名
+        // ==========================================
+        const videos = [
+            {
+                title: "系統整合展示 (Integrated)",
+                desc: "結合排球軌跡、場地標線與球員行為辨識的完整輸出",
+                // 對應你 Python 輸出的完整檔名
+                src: "1207_Complete_Output_ALL_Ver1.mp4" 
+            },
+            {
+                title: "排球追蹤 (Ball Tracking)",
+                desc: "使用 YOLOv11s 進行排球偵測與卡爾曼濾波/邏輯追蹤",
+                src: "demo_ball_only.mp4" // 請替換成單獨球的影片檔名
+            },
+            {
+                title: "場地標線 (Court Detection)",
+                desc: "手動標記或自動偵測後的 14 點場地投影",
+                src: "demo_court_only.mp4" // 請替換檔名
+            },
+            {
+                title: "球員行為辨識 (Player Action)",
+                desc: "YOLO-Pose 結合規則庫與 RL 進行動作分類 (Set, Spike, Block)",
+                src: "demo_player_only.mp4" // 請替換檔名
+            }
         ];
 
-        let currentViewIdx = 0;
-        const video = document.getElementById('main-video');
-        const playBtn = document.getElementById('btn-play');
-        const emptyState = document.getElementById('empty-placeholder');
+        const player = document.getElementById('mainPlayer');
+        const playBtn = document.getElementById('playBtn');
+        const speedRange = document.getElementById('speedRange');
+        const speedDisplay = document.getElementById('speedDisplay');
+        const sidebar = document.getElementById('sidebar');
+        const menuItems = document.querySelectorAll('.menu-item');
+        const titleEl = document.getElementById('videoTitle');
+        const descEl = document.getElementById('videoDesc');
 
-        // Init
-        function init() {
-            renderNav();
-            renderStatus();
-            setupControls();
+        // 初始化載入第一部影片
+        loadVideoSource(0);
 
-            // Auto-select first
-            selectView(0);
+        function switchVideo(index) {
+            // 更新選單樣式
+            menuItems.forEach(item => item.classList.remove('active'));
+            menuItems[index].classList.add('active');
+
+            // 更新文字資訊
+            titleEl.textContent = videos[index].title;
+            descEl.textContent = videos[index].desc;
+
+            // 載入影片
+            loadVideoSource(index);
         }
 
-        function renderNav() {
-            const container = document.getElementById('nav-container');
-            container.innerHTML = VIEWS.map((v, idx) => `
-                <div class="nav-item ${idx === currentViewIdx ? 'active' : ''}" onclick="selectView(${idx})">
-                    <i class="ph ${v.icon} text-xl"></i>
-                    <div class="text-sm font-medium">${v.title.split(' (')[0]}</div>
-                </div>
-            `).join('');
-        }
+        function loadVideoSource(index) {
+            const time = player.currentTime; // 紀錄當前時間 (如果想切換時保持時間，否則設為0)
+            const isPlaying = !player.paused;
+            
+            player.src = videos[index].src;
+            player.currentTime = 0; // 切換影片從頭開始
+            
+            // 重置速度
+            player.playbackRate = parseFloat(speedRange.value);
 
-        function renderStatus() {
-            const container = document.getElementById('status-container');
-            container.innerHTML = VIEWS.map(v => {
-                const isReady = v.file || v.path;
-                return `
-                <div class="flex items-center justify-between text-xs px-2 py-1">
-                    <span class="text-slate-400">${v.title.split(' ')[0]}</span>
-                    <span class="${isReady ? 'text-green-400' : 'text-slate-600'} flex items-center gap-1">
-                        <div class="w-1.5 h-1.5 rounded-full ${isReady ? 'bg-green-500' : 'bg-slate-700'}"></div>
-                        ${v.file ? '已上傳' : (v.path ? '預設影片' : '未載入')}
-                    </span>
-                </div>
-            `}).join('');
-        }
-
-        function selectView(idx) {
-            currentViewIdx = idx;
-            const v = VIEWS[idx];
-
-            // UI Update
-            document.getElementById('current-title').textContent = v.title;
-            renderNav();
-
-            // Video Update
-            if (v.file || v.path) {
-                const wasPlaying = !video.paused;
-                // Priority: Uploaded File > Hardcoded Path
-                const url = v.file ? URL.createObjectURL(v.file) : v.path;
-                video.src = url;
-                emptyState.classList.add('hidden');
-
-                // Auto play
-                video.play().catch(e => {
-                    console.log("Autoplay prevented:", e);
-                    updatePlayIcon();
-                });
+            if (isPlaying) {
+                player.play();
+                updatePlayBtnIcon(true);
             } else {
-                video.removeAttribute('src');
-                emptyState.classList.remove('hidden');
+                updatePlayBtnIcon(false);
             }
-        }
-
-        // Error Handling
-        video.addEventListener('error', (e) => {
-            const err = video.error;
-            let msg = "影片載入失敗 (Unknown Error)";
-            if (err) {
-                switch (err.code) {
-                    case MediaError.MEDIA_ERR_ABORTED: msg = "載入被中斷"; break;
-                    case MediaError.MEDIA_ERR_NETWORK: msg = "網路/路徑錯誤 (請確認檔案是否在同目錄)"; break;
-                    case MediaError.MEDIA_ERR_DECODE: msg = "影片格式損毀或不支援"; break;
-                    case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED: msg = "找不到檔案或格式不支援"; break;
-                }
-            }
-            // Show onscreen error
-            const errDiv = document.createElement('div');
-            errDiv.className = "absolute inset-0 bg-black/80 flex flex-col items-center justify-center z-50 text-red-400 p-4 text-center";
-            errDiv.innerHTML = `<i class="ph ph-warning-circle text-4xl mb-2"></i><p class="font-bold text-lg">${msg}</p><p class="text-xs text-slate-400 mt-2">嘗試載入: ${video.src}</p><button onclick="this.parentElement.remove()" class="mt-4 px-4 py-2 bg-slate-800 rounded hover:bg-slate-700 text-white text-xs">關閉</button>`;
-            video.parentElement.appendChild(errDiv);
-        });
-
-        // --- File Handling ---
-
-        // Single Upload (for current view)
-        function triggerSingleUpload() {
-            document.getElementById('single-upload').click();
-        }
-
-        document.getElementById('single-upload').addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            VIEWS[currentViewIdx].file = file;
-            renderStatus();
-            selectView(currentViewIdx);
-            video.play();
-        });
-
-        // Batch Upload (All)
-        document.getElementById('file-input-all').addEventListener('change', (e) => {
-            // Simple heuristic to assign files based on name or order
-            // If names contain keywords, match them. Else fill in order.
-            const files = Array.from(e.target.files);
-
-            files.forEach(f => {
-                const name = f.name.toLowerCase();
-                if (name.includes('all') || name.includes('complete')) VIEWS[0].file = f;
-                else if (name.includes('ball')) VIEWS[1].file = f;
-                else if (name.includes('court') || name.includes('line')) VIEWS[2].file = f;
-                else if (name.includes('player') || name.includes('pose')) VIEWS[3].file = f;
-                else {
-                    // Fallback: fill first empty
-                    const emptyIdx = VIEWS.findIndex(v => !v.file);
-                    if (emptyIdx !== -1) VIEWS[emptyIdx].file = f;
-                }
-            });
-
-            renderStatus();
-            selectView(currentViewIdx); // Refresh current
-        });
-
-
-        // --- Playback Controls ---
-
-        function setupControls() {
-            // Play/Pause
-            playBtn.addEventListener('click', togglePlay);
-            video.addEventListener('play', updatePlayIcon);
-            video.addEventListener('pause', updatePlayIcon);
-            video.addEventListener('click', togglePlay);
-
-            // Progress
-            video.addEventListener('timeupdate', () => {
-                const pct = (video.currentTime / video.duration) * 100 || 0;
-                document.getElementById('progress-fill').style.width = `${pct}%`;
-                document.getElementById('time-curr').textContent = fmtTime(video.currentTime);
-                document.getElementById('time-dur').textContent = fmtTime(video.duration || 0);
-            });
-
-            // Seek
-            const progContainer = document.getElementById('progress-container');
-            progContainer.addEventListener('click', (e) => {
-                const rect = progContainer.getBoundingClientRect();
-                const pos = (e.clientX - rect.left) / rect.width;
-                if (video.duration) video.currentTime = pos * video.duration;
-            });
-
-            // Speed
-            const speedBtns = document.querySelectorAll('.btn-speed');
-            speedBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const rate = parseFloat(btn.dataset.speed);
-                    video.playbackRate = rate;
-
-                    // Update UI
-                    speedBtns.forEach(b => {
-                        b.removeAttribute('data-active');
-                        b.classList.remove('active');
-                    });
-                    btn.setAttribute('data-active', 'true');
-                    btn.classList.add('active');
-                });
-            });
         }
 
         function togglePlay() {
-            if (video.paused) video.play();
-            else video.pause();
-        }
-
-        function updatePlayIcon() {
-            if (video.paused) {
-                playBtn.innerHTML = '<i class="ph ph-play-fill text-xl ml-0.5"></i>';
+            if (player.paused) {
+                player.play();
+                updatePlayBtnIcon(true);
             } else {
-                playBtn.innerHTML = '<i class="ph ph-pause-fill text-xl"></i>';
+                player.pause();
+                updatePlayBtnIcon(false);
             }
         }
 
-        function skip(sec) {
-            video.currentTime += sec;
+        function updatePlayBtnIcon(isPlaying) {
+            playBtn.innerHTML = isPlaying ? 
+                '<i class="fa-solid fa-pause"></i> 暫停' : 
+                '<i class="fa-solid fa-play"></i> 播放';
         }
 
-        function fmtTime(s) {
-            const m = Math.floor(s / 60);
-            const ss = Math.floor(s % 60);
-            return `${m}:${ss.toString().padStart(2, '0')}`;
+        function skip(seconds) {
+            player.currentTime += seconds;
         }
 
-        // Start
-        init();
+        function updateSpeed() {
+            const val = speedRange.value;
+            player.playbackRate = val;
+            speedDisplay.textContent = val + "x";
+        }
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('collapsed');
+        }
+
+        // 鍵盤快捷鍵支援
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault(); // 防止空白鍵捲動網頁
+                togglePlay();
+            }
+            if (e.code === 'ArrowRight') skip(5);
+            if (e.code === 'ArrowLeft') skip(-5);
+        });
 
     </script>
 </body>
-
 </html>
