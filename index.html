@@ -250,13 +250,35 @@
                 video.src = url;
                 emptyState.classList.add('hidden');
 
-                // Auto play if it's the first load or previously playing
-                // video.play(); 
+                // Auto play
+                video.play().catch(e => {
+                    console.log("Autoplay prevented:", e);
+                    updatePlayIcon();
+                });
             } else {
                 video.removeAttribute('src');
                 emptyState.classList.remove('hidden');
             }
         }
+
+        // Error Handling
+        video.addEventListener('error', (e) => {
+            const err = video.error;
+            let msg = "影片載入失敗 (Unknown Error)";
+            if (err) {
+                switch (err.code) {
+                    case MediaError.MEDIA_ERR_ABORTED: msg = "載入被中斷"; break;
+                    case MediaError.MEDIA_ERR_NETWORK: msg = "網路/路徑錯誤 (請確認檔案是否在同目錄)"; break;
+                    case MediaError.MEDIA_ERR_DECODE: msg = "影片格式損毀或不支援"; break;
+                    case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED: msg = "找不到檔案或格式不支援"; break;
+                }
+            }
+            // Show onscreen error
+            const errDiv = document.createElement('div');
+            errDiv.className = "absolute inset-0 bg-black/80 flex flex-col items-center justify-center z-50 text-red-400 p-4 text-center";
+            errDiv.innerHTML = `<i class="ph ph-warning-circle text-4xl mb-2"></i><p class="font-bold text-lg">${msg}</p><p class="text-xs text-slate-400 mt-2">嘗試載入: ${video.src}</p><button onclick="this.parentElement.remove()" class="mt-4 px-4 py-2 bg-slate-800 rounded hover:bg-slate-700 text-white text-xs">關閉</button>`;
+            video.parentElement.appendChild(errDiv);
+        });
 
         // --- File Handling ---
 
