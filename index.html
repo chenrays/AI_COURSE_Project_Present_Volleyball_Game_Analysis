@@ -11,7 +11,6 @@
             --sidebar-width: 260px;
             --sidebar-collapsed-width: 60px;
             --primary-color: #ef4444;
-            /* YouTube 紅色 */
             --bg-dark: #0f172a;
             --bg-panel: #1e293b;
             --text-light: #f1f5f9;
@@ -19,12 +18,7 @@
             --transition-speed: 0.3s;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
 
         body {
             background-color: var(--bg-dark);
@@ -46,10 +40,7 @@
             flex-shrink: 0;
             z-index: 20;
         }
-
-        .sidebar.collapsed {
-            width: var(--sidebar-collapsed-width);
-        }
+        .sidebar.collapsed { width: var(--sidebar-collapsed-width); }
 
         .logo-area {
             height: 60px;
@@ -63,15 +54,8 @@
             white-space: nowrap;
             overflow: hidden;
         }
-
-        .sidebar.collapsed .logo-area span {
-            opacity: 0;
-        }
-
-        .sidebar.collapsed .logo-area i {
-            margin-right: 0;
-            font-size: 1.5rem;
-        }
+        .sidebar.collapsed .logo-area span { opacity: 0; }
+        .sidebar.collapsed .logo-area i { margin-right: 0; font-size: 1.5rem; }
 
         .toggle-btn {
             position: absolute;
@@ -90,18 +74,9 @@
             transition: transform var(--transition-speed);
             z-index: 10;
         }
+        .sidebar.collapsed .toggle-btn { right: 15px; transform: rotate(180deg); }
 
-        .sidebar.collapsed .toggle-btn {
-            right: 15px;
-            transform: rotate(180deg);
-        }
-
-        .menu-list {
-            list-style: none;
-            margin-top: 20px;
-            padding: 0 10px;
-        }
-
+        .menu-list { list-style: none; margin-top: 20px; padding: 0 10px; }
         .menu-item {
             padding: 15px;
             margin-bottom: 8px;
@@ -114,33 +89,11 @@
             white-space: nowrap;
             overflow: hidden;
         }
-
-        .menu-item:hover {
-            background-color: #334155;
-            color: white;
-        }
-
-        .menu-item.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .menu-item i {
-            min-width: 30px;
-            font-size: 1.1rem;
-            text-align: center;
-        }
-
-        .menu-item span {
-            margin-left: 10px;
-            opacity: 1;
-            transition: opacity 0.2s;
-        }
-
-        .sidebar.collapsed .menu-item span {
-            opacity: 0;
-            display: none;
-        }
+        .menu-item:hover { background-color: #334155; color: white; }
+        .menu-item.active { background-color: var(--primary-color); color: white; }
+        .menu-item i { min-width: 30px; font-size: 1.1rem; text-align: center; }
+        .menu-item span { margin-left: 10px; opacity: 1; transition: opacity 0.2s; }
+        .sidebar.collapsed .menu-item span { opacity: 0; display: none; }
 
         /* --- 主內容區 --- */
         .main-content {
@@ -158,15 +111,13 @@
             width: 100%;
             max-width: 1000px;
             position: relative;
-            padding-bottom: 56.25%;
-            /* 16:9 */
+            padding-bottom: 56.25%; /* 16:9 */
             height: 0;
             background: #000;
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
         }
-
         .video-wrapper iframe {
             position: absolute;
             top: 0;
@@ -190,11 +141,7 @@
             flex-wrap: wrap;
         }
 
-        .btn-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .btn-group { display: flex; align-items: center; gap: 10px; }
 
         button.ctrl-btn {
             background: #334155;
@@ -206,22 +153,10 @@
             transition: 0.2s;
             font-size: 0.9rem;
         }
-
-        button.ctrl-btn:hover {
-            background: #475569;
-        }
-
-        button.ctrl-btn:active {
-            transform: scale(0.95);
-        }
-
-        button.ctrl-btn.primary {
-            background: var(--primary-color);
-        }
-
-        button.ctrl-btn.primary:hover {
-            background: #dc2626;
-        }
+        button.ctrl-btn:hover { background: #475569; }
+        button.ctrl-btn:active { transform: scale(0.95); }
+        button.ctrl-btn.primary { background: var(--primary-color); }
+        button.ctrl-btn.primary:hover { background: #dc2626; }
 
         .speed-control {
             display: flex;
@@ -232,10 +167,7 @@
             border-radius: 20px;
         }
 
-        input[type=range] {
-            width: 100px;
-            cursor: pointer;
-        }
+        input[type=range] { width: 100px; cursor: pointer; }
 
         .info-panel {
             margin-top: 20px;
@@ -243,31 +175,13 @@
             color: var(--text-gray);
             max-width: 800px;
         }
-
-        .info-title {
-            font-size: 1.5rem;
-            color: white;
-            margin-bottom: 5px;
-        }
+        .info-title { font-size: 1.5rem; color: white; margin-bottom: 5px; }
 
         @media (max-width: 768px) {
-            .controls {
-                justify-content: center;
-            }
-
-            .sidebar {
-                position: absolute;
-                height: 100%;
-            }
-
-            .sidebar.collapsed {
-                width: 0;
-                border: none;
-            }
-
-            .toggle-btn {
-                right: -40px;
-            }
+            .controls { justify-content: center; }
+            .sidebar { position: absolute; height: 100%; }
+            .sidebar.collapsed { width: 0; border: none; }
+            .toggle-btn { right: -40px; }
         }
     </style>
 </head>
@@ -285,22 +199,18 @@
                 <i class="fa-solid fa-file-video"></i>
                 <span>原始影片 (Input)</span>
             </li>
-
             <li class="menu-item" onclick="switchVideo(1)">
                 <i class="fa-solid fa-volleyball"></i>
                 <span>排球追蹤 (Ball)</span>
             </li>
-
             <li class="menu-item" onclick="switchVideo(2)">
                 <i class="fa-solid fa-vector-square"></i>
                 <span>場地標線 (Court)</span>
             </li>
-
             <li class="menu-item" onclick="switchVideo(3)">
                 <i class="fa-solid fa-person-running"></i>
                 <span>動作辨識 (Pose/RL)</span>
             </li>
-
             <li class="menu-item" onclick="switchVideo(4)">
                 <i class="fa-solid fa-layer-group"></i>
                 <span>系統整合展示 (Result)</span>
@@ -328,7 +238,7 @@
 
             <div class="speed-control">
                 <span style="font-size: 0.9rem;"><i class="fa-solid fa-gauge-high"></i> 速度:</span>
-                <input type="range" id="speedRange" min="0.25" max="2.0" step="0.25" value="1.0" oninput="setSpeed()">
+                <input type="range" id="speedRange" min="0.25" max="2.0" step="0.25" value="1.0" oninput="updateSpeedLabel()" onchange="setSpeed()">
                 <span id="speedDisplay" style="width: 40px; text-align: right;">1.0x</span>
             </div>
         </div>
@@ -343,44 +253,23 @@
 
     <script>
         // ==========================================
-        // 🔧 使用者設定區 (User Configuration)
+        // 🔧 設定區
         // ==========================================
         const YOUTUBE_IDS = {
-            ALL: "CEBqN_nKrvQ",    // 系統整合展示
-            BALL: "WlAtBO79wmk",    // 排球追蹤
-            COURT: "g4LiFDAhquc",    // 場地標線
-            POSE: "tmJCyD4BH-c",    // 動作辨識
-            ORIGIN: "elp1-DmyPKw"     // 原始影片
+            ALL: "CEBqN_nKrvQ",
+            BALL: "WlAtBO79wmk",
+            COURT: "g4LiFDAhquc",
+            POSE: "tmJCyD4BH-c",
+            ORIGIN: "elp1-DmyPKw"
         };
         // ==========================================
 
-        // 影片播放清單
         const videoData = [
-            {
-                id: YOUTUBE_IDS.ORIGIN,
-                title: "原始影片 (Input Video)",
-                desc: "未經任何 AI 處理的原始輸入影片，用於對照效果"
-            },
-            {
-                id: YOUTUBE_IDS.BALL,
-                title: "排球追蹤 (Ball Tracking)",
-                desc: "使用 YOLOv11s 進行排球偵測與卡爾曼濾波/邏輯追蹤"
-            },
-            {
-                id: YOUTUBE_IDS.COURT,
-                title: "場地標線 (Court Detection)",
-                desc: "手動標記或自動偵測後的 14 點場地投影"
-            },
-            {
-                id: YOUTUBE_IDS.POSE,
-                title: "球員行為辨識 (Player Action)",
-                desc: "YOLO-Pose 結合規則庫與 RL 進行動作分類 (Set, Spike, Block)"
-            },
-            {
-                id: YOUTUBE_IDS.ALL,
-                title: "系統整合展示 (Final Result)",
-                desc: "結合排球軌跡、場地標線與球員行為辨識的完整輸出"
-            }
+            { id: YOUTUBE_IDS.ORIGIN, title: "原始影片 (Input Video)", desc: "未經任何 AI 處理的原始輸入影片，用於對照效果" },
+            { id: YOUTUBE_IDS.BALL, title: "排球追蹤 (Ball Tracking)", desc: "使用 YOLOv11s 進行排球偵測與卡爾曼濾波/邏輯追蹤" },
+            { id: YOUTUBE_IDS.COURT, title: "場地標線 (Court Detection)", desc: "手動標記或自動偵測後的 14 點場地投影" },
+            { id: YOUTUBE_IDS.POSE, title: "球員行為辨識 (Player Action)", desc: "YOLO-Pose 結合規則庫與 RL 進行動作分類 (Set, Spike, Block)" },
+            { id: YOUTUBE_IDS.ALL, title: "系統整合展示 (Final Result)", desc: "結合排球軌跡、場地標線與球員行為辨識的完整輸出" }
         ];
 
         var player;
@@ -394,70 +283,82 @@
         const descEl = document.getElementById('videoDesc');
 
         function onYouTubeIframeAPIReady() {
+            // 自動偵測 GitHub Pages 或其他網域的 Origin
+            var originUrl = window.location.origin;
+            console.log("Detect Origin:", originUrl);
+
             player = new YT.Player('youtube-player', {
                 height: '100%',
                 width: '100%',
                 videoId: videoData[0].id,
-                playerVars: { 'playsinline': 1, 'rel': 0, 'controls': 1 },
+                playerVars: { 
+                    'playsinline': 1, 
+                    'rel': 0, 
+                    'controls': 1,
+                    'enablejsapi': 1,
+                    'origin': originUrl // 動態填入正確的 Origin
+                },
                 events: { 'onStateChange': onPlayerStateChange }
             });
         }
 
         function onPlayerStateChange(event) {
-            // 1. 更新播放按鈕圖示
             updatePlayBtnIcon(event.data == YT.PlayerState.PLAYING);
-
-            // 2. 【關鍵修正】當影片開始播放時，強制套用目前滑桿的速度
-            // 這樣可以解決切換影片後速度重置的問題
+            
+            // 監聽播放狀態，確保速度被鎖定
             if (event.data == YT.PlayerState.PLAYING) {
-                const currentRate = parseFloat(speedRange.value);
-                if (player && player.setPlaybackRate) {
-                    player.setPlaybackRate(currentRate);
-                }
+                console.log("Video Started. Enforcing speed...");
+                setSpeed(); // 強制執行一次速度設定
             }
         }
 
         function switchVideo(index) {
             currentVideoIndex = index;
-
-            // 更新選單激活狀態
             menuItems.forEach(item => item.classList.remove('active'));
             menuItems[index].classList.add('active');
-
-            // 更新標題與描述
             titleEl.textContent = videoData[index].title;
             descEl.textContent = videoData[index].desc;
 
-            // 載入新影片
             if (player && player.loadVideoById) {
                 player.loadVideoById(videoData[index].id);
             }
         }
 
         function togglePlay() {
-            if (!player) return;
+            if (!player || typeof player.getPlayerState !== 'function') return;
             const state = player.getPlayerState();
             (state === YT.PlayerState.PLAYING) ? player.pauseVideo() : player.playVideo();
         }
 
         function updatePlayBtnIcon(isPlaying) {
-            playBtn.innerHTML = isPlaying ?
-                '<i class="fa-solid fa-pause"></i> 暫停' :
-                '<i class="fa-solid fa-play"></i> 播放';
+            playBtn.innerHTML = isPlaying ? '<i class="fa-solid fa-pause"></i> 暫停' : '<i class="fa-solid fa-play"></i> 播放';
         }
 
         function seekVideo(seconds) {
-            if (!player) return;
+            if (!player || typeof player.getCurrentTime !== 'function') return;
             player.seekTo(player.getCurrentTime() + seconds, true);
         }
 
-        // 【修正】更穩定的速度設定函式
-        function setSpeed() {
-            if (!player || !player.setPlaybackRate) return;
+        // 僅更新文字顯示 (拖曳時觸發)
+        function updateSpeedLabel() {
+            speedDisplay.textContent = speedRange.value + "x";
+        }
 
+        // 實際套用速度 (放開滑鼠或點擊時觸發)
+        function setSpeed() {
+            if (!player || typeof player.setPlaybackRate !== 'function') {
+                console.warn("Player not ready for speed change");
+                return;
+            }
+            
             const rate = parseFloat(speedRange.value);
+            console.log("Setting speed to:", rate);
+            
+            // 嘗試設定速度
             player.setPlaybackRate(rate);
-            speedDisplay.textContent = rate + "x";
+            
+            // 雙重檢查：如果設定失敗，可能是影片還沒開始，我們不做額外處理，
+            // 因為 onPlayerStateChange 會在影片開始時再次呼叫這裡。
         }
 
         function toggleSidebar() {
@@ -474,5 +375,4 @@
         });
     </script>
 </body>
-
 </html>
