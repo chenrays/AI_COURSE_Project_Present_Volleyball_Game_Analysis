@@ -9,7 +9,7 @@
         :root {
             --sidebar-width: 260px;
             --sidebar-collapsed-width: 60px;
-            --primary-color: #3b82f6;
+            --primary-color: #ef4444; /* YouTube 紅色 */
             --bg-dark: #0f172a;
             --bg-panel: #1e293b;
             --text-light: #f1f5f9;
@@ -37,6 +37,7 @@
             transition: width var(--transition-speed) ease;
             position: relative;
             flex-shrink: 0;
+            z-index: 20;
         }
 
         .sidebar.collapsed { width: var(--sidebar-collapsed-width); }
@@ -106,19 +107,28 @@
             justify-content: center;
             padding: 20px;
             position: relative;
+            overflow-y: auto;
         }
 
-        .video-container {
+        .video-wrapper {
             width: 100%;
             max-width: 1000px;
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 */
+            height: 0;
             background: #000;
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            position: relative;
         }
 
-        video { width: 100%; height: auto; display: block; }
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
 
         /* --- 控制面板 --- */
         .controls {
@@ -150,7 +160,7 @@
         button.ctrl-btn:hover { background: #475569; }
         button.ctrl-btn:active { transform: scale(0.95); }
         button.ctrl-btn.primary { background: var(--primary-color); }
-        button.ctrl-btn.primary:hover { background: #2563eb; }
+        button.ctrl-btn.primary:hover { background: #dc2626; }
 
         .speed-control {
             display: flex;
@@ -167,9 +177,16 @@
             margin-top: 20px;
             text-align: center;
             color: var(--text-gray);
+            max-width: 800px;
         }
         .info-title { font-size: 1.5rem; color: white; margin-bottom: 5px; }
 
+        @media (max-width: 768px) {
+            .controls { justify-content: center; }
+            .sidebar { position: absolute; height: 100%; }
+            .sidebar.collapsed { width: 0; border: none; }
+            .toggle-btn { right: -40px; }
+        }
     </style>
 </head>
 <body>
@@ -197,6 +214,10 @@
                 <i class="fa-solid fa-person-running"></i>
                 <span>動作辨識 (Pose/RL)</span>
             </li>
+            <li class="menu-item" onclick="switchVideo(4)">
+                <i class="fa-solid fa-file-video"></i>
+                <span>原始影片 (Original)</span>
+            </li>
         </ul>
 
         <button class="toggle-btn" onclick="toggleSidebar()">
@@ -205,26 +226,22 @@
     </div>
 
     <div class="main-content">
-        
-        <div class="video-container">
-            <video id="mainPlayer" playsinline onclick="togglePlay()">
-                <source src="" type="video/mp4">
-                您的瀏覽器不支援 HTML5 影片。
-            </video>
+        <div class="video-wrapper">
+            <div id="youtube-player"></div>
         </div>
 
         <div class="controls">
             <div class="btn-group">
-                <button class="ctrl-btn" onclick="skip(-5)"><i class="fa-solid fa-backward"></i> -5s</button>
+                <button class="ctrl-btn" onclick="seekVideo(-5)"><i class="fa-solid fa-backward"></i> -5s</button>
                 <button class="ctrl-btn primary" id="playBtn" onclick="togglePlay()">
                     <i class="fa-solid fa-play"></i> 播放
                 </button>
-                <button class="ctrl-btn" onclick="skip(5)">+5s <i class="fa-solid fa-forward"></i></button>
+                <button class="ctrl-btn" onclick="seekVideo(5)">+5s <i class="fa-solid fa-forward"></i></button>
             </div>
 
             <div class="speed-control">
                 <span style="font-size: 0.9rem;"><i class="fa-solid fa-gauge-high"></i> 速度:</span>
-                <input type="range" id="speedRange" min="0.25" max="2.0" step="0.25" value="1.0" oninput="updateSpeed()">
+                <input type="range" id="speedRange" min="0.25" max="2.0" step="0.25" value="1.0" oninput="setSpeed()">
                 <span id="speedDisplay" style="width: 40px; text-align: right;">1.0x</span>
             </div>
         </div>
@@ -233,38 +250,56 @@
             <h2 class="info-title" id="videoTitle">系統整合展示</h2>
             <p id="videoDesc">YOLOv11 Ball + Court Lines + Player Action Recognition 整合結果</p>
         </div>
-
     </div>
+
+    <script src="https://www.youtube.com/iframe_api"></script>
 
     <script>
         // ==========================================
-        // 🔧 請在這裡修改你的影片檔名
+        // 🔧 使用者設定區 (User Configuration)
+        // 請將你的 YouTube ID 填入下方對應位置
         // ==========================================
-        const videos = [
+        const YOUTUBE_IDS = {
+            ALL:      "https://youtu.be/CEBqN_nKrvQ",    // 1. 系統整合展示
+            BALL:     "https://youtu.be/WlAtBO79wmk",   // 2. 排球追蹤
+            COURT:    "https://youtu.be/g4LiFDAhquc",  // 3. 場地標線
+            POSE:     "https://youtu.be/tmJCyD4BH-c",   // 4. 動作辨識
+            ORIGIN:   "https://youtu.be/elp1-DmyPKw"  // 5. 原始影片
+        };
+        // ==========================================
+
+
+        // 影片資訊結構 (自動讀取上方設定)
+        const videoData = [
             {
+                id: YOUTUBE_IDS.ALL,
                 title: "系統整合展示 (Integrated)",
-                desc: "結合排球軌跡、場地標線與球員行為辨識的完整輸出",
-                // 對應你 Python 輸出的完整檔名
-                src: "1207_Complete_Output_ALL_Ver1.mp4" 
+                desc: "結合排球軌跡、場地標線與球員行為辨識的完整輸出"
             },
             {
+                id: YOUTUBE_IDS.BALL,
                 title: "排球追蹤 (Ball Tracking)",
-                desc: "使用 YOLOv11s 進行排球偵測與卡爾曼濾波/邏輯追蹤",
-                src: "demo_ball_only.mp4" // 請替換成單獨球的影片檔名
+                desc: "使用 YOLOv11s 進行排球偵測與卡爾曼濾波/邏輯追蹤"
             },
             {
+                id: YOUTUBE_IDS.COURT,
                 title: "場地標線 (Court Detection)",
-                desc: "手動標記或自動偵測後的 14 點場地投影",
-                src: "demo_court_only.mp4" // 請替換檔名
+                desc: "手動標記或自動偵測後的 14 點場地投影"
             },
             {
+                id: YOUTUBE_IDS.POSE,
                 title: "球員行為辨識 (Player Action)",
-                desc: "YOLO-Pose 結合規則庫與 RL 進行動作分類 (Set, Spike, Block)",
-                src: "demo_player_only.mp4" // 請替換檔名
+                desc: "YOLO-Pose 結合規則庫與 RL 進行動作分類 (Set, Spike, Block)"
+            },
+            {
+                id: YOUTUBE_IDS.ORIGIN,
+                title: "原始影片 (Input Video)",
+                desc: "未經任何 AI 處理的原始輸入影片，用於對照效果"
             }
         ];
 
-        const player = document.getElementById('mainPlayer');
+        var player;
+        var currentVideoIndex = 0;
         const playBtn = document.getElementById('playBtn');
         const speedRange = document.getElementById('speedRange');
         const speedDisplay = document.getElementById('speedDisplay');
@@ -273,48 +308,37 @@
         const titleEl = document.getElementById('videoTitle');
         const descEl = document.getElementById('videoDesc');
 
-        // 初始化載入第一部影片
-        loadVideoSource(0);
-
-        function switchVideo(index) {
-            // 更新選單樣式
-            menuItems.forEach(item => item.classList.remove('active'));
-            menuItems[index].classList.add('active');
-
-            // 更新文字資訊
-            titleEl.textContent = videos[index].title;
-            descEl.textContent = videos[index].desc;
-
-            // 載入影片
-            loadVideoSource(index);
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('youtube-player', {
+                height: '100%',
+                width: '100%',
+                videoId: videoData[0].id,
+                playerVars: { 'playsinline': 1, 'rel': 0, 'controls': 1 },
+                events: { 'onStateChange': onPlayerStateChange }
+            });
         }
 
-        function loadVideoSource(index) {
-            const time = player.currentTime; // 紀錄當前時間 (如果想切換時保持時間，否則設為0)
-            const isPlaying = !player.paused;
-            
-            player.src = videos[index].src;
-            player.currentTime = 0; // 切換影片從頭開始
-            
-            // 重置速度
-            player.playbackRate = parseFloat(speedRange.value);
+        function onPlayerStateChange(event) {
+            updatePlayBtnIcon(event.data == YT.PlayerState.PLAYING);
+        }
 
-            if (isPlaying) {
-                player.play();
-                updatePlayBtnIcon(true);
-            } else {
-                updatePlayBtnIcon(false);
+        function switchVideo(index) {
+            currentVideoIndex = index;
+            menuItems.forEach(item => item.classList.remove('active'));
+            menuItems[index].classList.add('active');
+            titleEl.textContent = videoData[index].title;
+            descEl.textContent = videoData[index].desc;
+            
+            if (player && player.loadVideoById) {
+                player.loadVideoById(videoData[index].id);
+                player.setPlaybackRate(parseFloat(speedRange.value));
             }
         }
 
         function togglePlay() {
-            if (player.paused) {
-                player.play();
-                updatePlayBtnIcon(true);
-            } else {
-                player.pause();
-                updatePlayBtnIcon(false);
-            }
+            if (!player) return;
+            const state = player.getPlayerState();
+            (state === YT.PlayerState.PLAYING) ? player.pauseVideo() : player.playVideo();
         }
 
         function updatePlayBtnIcon(isPlaying) {
@@ -323,30 +347,30 @@
                 '<i class="fa-solid fa-play"></i> 播放';
         }
 
-        function skip(seconds) {
-            player.currentTime += seconds;
+        function seekVideo(seconds) {
+            if (!player) return;
+            player.seekTo(player.getCurrentTime() + seconds, true);
         }
 
-        function updateSpeed() {
-            const val = speedRange.value;
-            player.playbackRate = val;
-            speedDisplay.textContent = val + "x";
+        function setSpeed() {
+            if (!player) return;
+            const rate = parseFloat(speedRange.value);
+            player.setPlaybackRate(rate);
+            speedDisplay.textContent = rate + "x";
         }
 
         function toggleSidebar() {
             sidebar.classList.toggle('collapsed');
         }
 
-        // 鍵盤快捷鍵支援
         document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space') {
-                e.preventDefault(); // 防止空白鍵捲動網頁
+            if (e.code === 'Space' && e.target.tagName !== 'INPUT') {
+                e.preventDefault();
                 togglePlay();
             }
-            if (e.code === 'ArrowRight') skip(5);
-            if (e.code === 'ArrowLeft') skip(-5);
+            if (e.code === 'ArrowRight') seekVideo(5);
+            if (e.code === 'ArrowLeft') seekVideo(-5);
         });
-
     </script>
 </body>
 </html>
