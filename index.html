@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,7 +10,8 @@
         :root {
             --sidebar-width: 260px;
             --sidebar-collapsed-width: 60px;
-            --primary-color: #ef4444; /* YouTube 紅色 */
+            --primary-color: #ef4444;
+            /* YouTube 紅色 */
             --bg-dark: #0f172a;
             --bg-panel: #1e293b;
             --text-light: #f1f5f9;
@@ -17,8 +19,13 @@
             --transition-speed: 0.3s;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
         body {
             background-color: var(--bg-dark);
             color: var(--text-light);
@@ -40,8 +47,10 @@
             z-index: 20;
         }
 
-        .sidebar.collapsed { width: var(--sidebar-collapsed-width); }
-        
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+        }
+
         .logo-area {
             height: 60px;
             display: flex;
@@ -54,9 +63,15 @@
             white-space: nowrap;
             overflow: hidden;
         }
-        
-        .sidebar.collapsed .logo-area span { opacity: 0; }
-        .sidebar.collapsed .logo-area i { margin-right: 0; font-size: 1.5rem; }
+
+        .sidebar.collapsed .logo-area span {
+            opacity: 0;
+        }
+
+        .sidebar.collapsed .logo-area i {
+            margin-right: 0;
+            font-size: 1.5rem;
+        }
 
         .toggle-btn {
             position: absolute;
@@ -76,9 +91,17 @@
             z-index: 10;
         }
 
-        .sidebar.collapsed .toggle-btn { right: 15px; transform: rotate(180deg); }
+        .sidebar.collapsed .toggle-btn {
+            right: 15px;
+            transform: rotate(180deg);
+        }
 
-        .menu-list { list-style: none; margin-top: 20px; padding: 0 10px; }
+        .menu-list {
+            list-style: none;
+            margin-top: 20px;
+            padding: 0 10px;
+        }
+
         .menu-item {
             padding: 15px;
             margin-bottom: 8px;
@@ -92,11 +115,32 @@
             overflow: hidden;
         }
 
-        .menu-item:hover { background-color: #334155; color: white; }
-        .menu-item.active { background-color: var(--primary-color); color: white; }
-        .menu-item i { min-width: 30px; font-size: 1.1rem; text-align: center; }
-        .menu-item span { margin-left: 10px; opacity: 1; transition: opacity 0.2s; }
-        .sidebar.collapsed .menu-item span { opacity: 0; display: none; }
+        .menu-item:hover {
+            background-color: #334155;
+            color: white;
+        }
+
+        .menu-item.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .menu-item i {
+            min-width: 30px;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        .menu-item span {
+            margin-left: 10px;
+            opacity: 1;
+            transition: opacity 0.2s;
+        }
+
+        .sidebar.collapsed .menu-item span {
+            opacity: 0;
+            display: none;
+        }
 
         /* --- 主內容區 --- */
         .main-content {
@@ -114,12 +158,13 @@
             width: 100%;
             max-width: 1000px;
             position: relative;
-            padding-bottom: 56.25%; /* 16:9 */
+            padding-bottom: 56.25%;
+            /* 16:9 */
             height: 0;
             background: #000;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
         }
 
         .video-wrapper iframe {
@@ -145,7 +190,11 @@
             flex-wrap: wrap;
         }
 
-        .btn-group { display: flex; align-items: center; gap: 10px; }
+        .btn-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
         button.ctrl-btn {
             background: #334155;
@@ -157,10 +206,22 @@
             transition: 0.2s;
             font-size: 0.9rem;
         }
-        button.ctrl-btn:hover { background: #475569; }
-        button.ctrl-btn:active { transform: scale(0.95); }
-        button.ctrl-btn.primary { background: var(--primary-color); }
-        button.ctrl-btn.primary:hover { background: #dc2626; }
+
+        button.ctrl-btn:hover {
+            background: #475569;
+        }
+
+        button.ctrl-btn:active {
+            transform: scale(0.95);
+        }
+
+        button.ctrl-btn.primary {
+            background: var(--primary-color);
+        }
+
+        button.ctrl-btn.primary:hover {
+            background: #dc2626;
+        }
 
         .speed-control {
             display: flex;
@@ -171,24 +232,46 @@
             border-radius: 20px;
         }
 
-        input[type=range] { width: 100px; cursor: pointer; }
-        
+        input[type=range] {
+            width: 100px;
+            cursor: pointer;
+        }
+
         .info-panel {
             margin-top: 20px;
             text-align: center;
             color: var(--text-gray);
             max-width: 800px;
         }
-        .info-title { font-size: 1.5rem; color: white; margin-bottom: 5px; }
+
+        .info-title {
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 5px;
+        }
 
         @media (max-width: 768px) {
-            .controls { justify-content: center; }
-            .sidebar { position: absolute; height: 100%; }
-            .sidebar.collapsed { width: 0; border: none; }
-            .toggle-btn { right: -40px; }
+            .controls {
+                justify-content: center;
+            }
+
+            .sidebar {
+                position: absolute;
+                height: 100%;
+            }
+
+            .sidebar.collapsed {
+                width: 0;
+                border: none;
+            }
+
+            .toggle-btn {
+                right: -40px;
+            }
         }
     </style>
 </head>
+
 <body>
 
     <div class="sidebar" id="sidebar">
@@ -196,13 +279,13 @@
             <i class="fa-solid fa-volleyball"></i>
             <span style="margin-left: 10px;">Volley AI</span>
         </div>
-        
+
         <ul class="menu-list">
             <li class="menu-item active" onclick="switchVideo(0)">
                 <i class="fa-solid fa-file-video"></i>
                 <span>原始影片 (Input)</span>
             </li>
-            
+
             <li class="menu-item" onclick="switchVideo(1)">
                 <i class="fa-solid fa-baseball"></i>
                 <span>排球追蹤 (Ball)</span>
@@ -263,11 +346,11 @@
         // 🔧 使用者設定區 (User Configuration)
         // ==========================================
         const YOUTUBE_IDS = {
-            ALL:      "CEBqN_nKrvQ",    // 系統整合展示
-            BALL:     "WlAtBO79wmk",    // 排球追蹤
-            COURT:    "g4LiFDAhquc",    // 場地標線
-            POSE:     "tmJCyD4BH-c",    // 動作辨識
-            ORIGIN:   "elp1-DmyPKw"     // 原始影片
+            ALL: "CEBqN_nKrvQ",    // 系統整合展示
+            BALL: "WlAtBO79wmk",    // 排球追蹤
+            COURT: "g4LiFDAhquc",    // 場地標線
+            POSE: "tmJCyD4BH-c",    // 動作辨識
+            ORIGIN: "elp1-DmyPKw"     // 原始影片
         };
         // ==========================================
 
@@ -334,15 +417,15 @@
 
         function switchVideo(index) {
             currentVideoIndex = index;
-            
+
             // 更新選單激活狀態
             menuItems.forEach(item => item.classList.remove('active'));
             menuItems[index].classList.add('active');
-            
+
             // 更新標題與描述
             titleEl.textContent = videoData[index].title;
             descEl.textContent = videoData[index].desc;
-            
+
             // 載入新影片
             if (player && player.loadVideoById) {
                 player.loadVideoById(videoData[index].id);
@@ -357,8 +440,8 @@
         }
 
         function updatePlayBtnIcon(isPlaying) {
-            playBtn.innerHTML = isPlaying ? 
-                '<i class="fa-solid fa-pause"></i> 暫停' : 
+            playBtn.innerHTML = isPlaying ?
+                '<i class="fa-solid fa-pause"></i> 暫停' :
                 '<i class="fa-solid fa-play"></i> 播放';
         }
 
@@ -388,4 +471,5 @@
         });
     </script>
 </body>
+
 </html>
