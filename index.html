@@ -287,7 +287,7 @@
             </li>
 
             <li class="menu-item" onclick="switchVideo(1)">
-                <i class="fa-solid fa-baseball"></i>
+                <i class="fa-solid fa-volleyball"></i>
                 <span>排球追蹤 (Ball)</span>
             </li>
 
@@ -431,7 +431,6 @@
             // 載入新影片
             if (player && player.loadVideoById) {
                 player.loadVideoById(videoData[index].id);
-                // 注意：這裡移除了原本的 setPlaybackRate，改由 onPlayerStateChange 統一處理
             }
         }
 
