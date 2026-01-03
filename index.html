@@ -3,13 +3,13 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>排球 AI 分析系統展示</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --sidebar-width: 260px;
-            --sidebar-collapsed-width: 60px;
+            --sidebar-collapsed-width: 0px; /* 手機版收合時完全隱藏 */
             --primary-color: #ef4444;
             --bg-dark: #0f172a;
             --bg-panel: #1e293b;
@@ -26,6 +26,7 @@
             display: flex;
             height: 100vh;
             overflow: hidden;
+            position: relative; /* 為了讓側邊欄定位 */
         }
 
         /* --- 側邊欄樣式 --- */
@@ -35,12 +36,15 @@
             border-right: 1px solid #334155;
             display: flex;
             flex-direction: column;
-            transition: width var(--transition-speed) ease;
+            transition: transform var(--transition-speed) ease, width var(--transition-speed) ease;
             position: relative;
             flex-shrink: 0;
-            z-index: 20;
+            z-index: 100; /* 確保在影片上層 */
+            height: 100%;
         }
-        .sidebar.collapsed { width: var(--sidebar-collapsed-width); }
+
+        /* 電腦版收合樣式 */
+        .sidebar.collapsed { width: 60px; }
 
         .logo-area {
             height: 60px;
@@ -54,8 +58,9 @@
             white-space: nowrap;
             overflow: hidden;
         }
-        .sidebar.collapsed .logo-area span { opacity: 0; }
-        .sidebar.collapsed .logo-area i { margin-right: 0; font-size: 1.5rem; }
+
+        .sidebar.collapsed .logo-area span { opacity: 0; display: none; }
+        .sidebar.collapsed .logo-area i { margin: 0 auto; font-size: 1.5rem; }
 
         .toggle-btn {
             position: absolute;
@@ -101,10 +106,11 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start; /* 手機版靠上對齊 */
             padding: 20px;
             position: relative;
             overflow-y: auto;
+            width: 100%;
         }
 
         .video-wrapper {
@@ -117,6 +123,7 @@
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            flex-shrink: 0;
         }
         .video-wrapper iframe {
             position: absolute;
@@ -131,7 +138,7 @@
             width: 100%;
             max-width: 1000px;
             background: var(--bg-panel);
-            padding: 15px 25px;
+            padding: 15px 20px;
             border-radius: 12px;
             margin-top: 15px;
             display: flex;
@@ -147,11 +154,11 @@
             background: #334155;
             border: none;
             color: white;
-            padding: 8px 12px;
+            padding: 10px 14px; /* 手機版按鈕稍微大一點好按 */
             border-radius: 6px;
             cursor: pointer;
             transition: 0.2s;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
         }
         button.ctrl-btn:hover { background: #475569; }
         button.ctrl-btn:active { transform: scale(0.95); }
@@ -163,10 +170,9 @@
             align-items: center;
             gap: 10px;
             background: #0f172a;
-            padding: 5px 15px;
+            padding: 8px 15px;
             border-radius: 20px;
         }
-
         input[type=range] { width: 100px; cursor: pointer; }
 
         .info-panel {
@@ -174,14 +180,70 @@
             text-align: center;
             color: var(--text-gray);
             max-width: 800px;
+            padding-bottom: 40px; /* 底部留白 */
         }
-        .info-title { font-size: 1.5rem; color: white; margin-bottom: 5px; }
+        .info-title { font-size: 1.4rem; color: white; margin-bottom: 8px; }
 
+        /* =========================================
+           📱 手機版專用樣式 (Media Queries)
+           ========================================= */
         @media (max-width: 768px) {
-            .controls { justify-content: center; }
-            .sidebar { position: absolute; height: 100%; }
-            .sidebar.collapsed { width: 0; border: none; }
-            .toggle-btn { right: -40px; }
+            .sidebar {
+                position: absolute; /* 改為浮動定位 */
+                height: 100%;
+                box-shadow: 5px 0 15px rgba(0,0,0,0.5);
+                transform: translateX(0); /* 預設顯示 */
+            }
+            
+            /* 手機版收合時：完全移出畫面 */
+            .sidebar.collapsed {
+                width: var(--sidebar-width); /* 保持寬度，但移出去 */
+                transform: translateX(-100%);
+                border: none;
+            }
+
+            /* 讓漢堡選單按鈕永遠顯示在左下角，即使側邊欄收起來也能按 */
+            .toggle-btn {
+                position: fixed;
+                bottom: 20px;
+                left: 20px; 
+                right: auto;
+                z-index: 101;
+                width: 45px; /* 按鈕加大 */
+                height: 45px;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            }
+            .sidebar.collapsed .toggle-btn {
+                transform: rotate(0deg); /* 手機版收合時不旋轉箭頭，改用圖示變化 */
+                left: 20px;
+            }
+
+            /* 控制面板改成垂直排列 */
+            .controls {
+                flex-direction: column;
+                gap: 12px;
+                padding: 15px;
+            }
+            .btn-group {
+                width: 100%;
+                justify-content: space-between; /* 按鈕分散對齊 */
+            }
+            .btn-group button {
+                flex: 1; /* 按鈕平均分配寬度 */
+                justify-content: center;
+                display: flex;
+            }
+            .speed-control {
+                width: 100%;
+                justify-content: space-between;
+            }
+            input[type=range] {
+                flex-grow: 1; /* 拉桿自動填滿 */
+            }
+            
+            .main-content { padding: 10px; }
+            .info-title { font-size: 1.2rem; }
+            .info-panel p { font-size: 0.9rem; }
         }
     </style>
 </head>
@@ -218,11 +280,11 @@
         </ul>
 
         <button class="toggle-btn" onclick="toggleSidebar()">
-            <i class="fa-solid fa-chevron-left"></i>
+            <i class="fa-solid fa-bars" id="toggleIcon"></i>
         </button>
     </div>
 
-    <div class="main-content">
+    <div class="main-content" onclick="closeSidebarOnMobile()">
         <div class="video-wrapper">
             <div id="youtube-player"></div>
         </div>
@@ -237,9 +299,9 @@
             </div>
 
             <div class="speed-control">
-                <span style="font-size: 0.9rem;"><i class="fa-solid fa-gauge-high"></i> 速度:</span>
+                <span style="font-size: 0.9rem; white-space: nowrap;"><i class="fa-solid fa-gauge-high"></i> 速度</span>
                 <input type="range" id="speedRange" min="0.25" max="2.0" step="0.25" value="1.0" oninput="updateSpeedLabel()" onchange="setSpeed()">
-                <span id="speedDisplay" style="width: 40px; text-align: right;">1.0x</span>
+                <span id="speedDisplay" style="width: 35px; text-align: right;">1.0x</span>
             </div>
         </div>
 
@@ -253,7 +315,7 @@
 
     <script>
         // ==========================================
-        // 🔧 設定區
+        // 🔧 使用者設定區
         // ==========================================
         const YOUTUBE_IDS = {
             ALL: "CEBqN_nKrvQ",
@@ -278,14 +340,28 @@
         const speedRange = document.getElementById('speedRange');
         const speedDisplay = document.getElementById('speedDisplay');
         const sidebar = document.getElementById('sidebar');
+        const toggleIcon = document.getElementById('toggleIcon');
         const menuItems = document.querySelectorAll('.menu-item');
         const titleEl = document.getElementById('videoTitle');
         const descEl = document.getElementById('videoDesc');
 
+        // 偵測是否為手機
+        const isMobile = window.innerWidth <= 768;
+
+        // 初始化
+        window.onload = function() {
+            // 如果是手機，預設收起側邊欄
+            if (isMobile) {
+                sidebar.classList.add('collapsed');
+                toggleIcon.className = "fa-solid fa-bars"; // 顯示漢堡選單圖示
+            } else {
+                toggleIcon.className = "fa-solid fa-chevron-left"; // 電腦版顯示箭頭
+            }
+        };
+
         function onYouTubeIframeAPIReady() {
-            // 自動偵測 GitHub Pages 或其他網域的 Origin
             var originUrl = window.location.origin;
-            console.log("Detect Origin:", originUrl);
+            if (originUrl === "file://") originUrl = "*";
 
             player = new YT.Player('youtube-player', {
                 height: '100%',
@@ -296,7 +372,7 @@
                     'rel': 0, 
                     'controls': 1,
                     'enablejsapi': 1,
-                    'origin': originUrl // 動態填入正確的 Origin
+                    'origin': originUrl
                 },
                 events: { 'onStateChange': onPlayerStateChange }
             });
@@ -304,11 +380,8 @@
 
         function onPlayerStateChange(event) {
             updatePlayBtnIcon(event.data == YT.PlayerState.PLAYING);
-            
-            // 監聽播放狀態，確保速度被鎖定
             if (event.data == YT.PlayerState.PLAYING) {
-                console.log("Video Started. Enforcing speed...");
-                setSpeed(); // 強制執行一次速度設定
+                setSpeed();
             }
         }
 
@@ -321,6 +394,12 @@
 
             if (player && player.loadVideoById) {
                 player.loadVideoById(videoData[index].id);
+            }
+
+            // 手機版點擊選單後，自動收起側邊欄
+            if (window.innerWidth <= 768) {
+                sidebar.classList.add('collapsed');
+                toggleIcon.className = "fa-solid fa-bars";
             }
         }
 
@@ -339,30 +418,35 @@
             player.seekTo(player.getCurrentTime() + seconds, true);
         }
 
-        // 僅更新文字顯示 (拖曳時觸發)
         function updateSpeedLabel() {
             speedDisplay.textContent = speedRange.value + "x";
         }
 
-        // 實際套用速度 (放開滑鼠或點擊時觸發)
         function setSpeed() {
-            if (!player || typeof player.setPlaybackRate !== 'function') {
-                console.warn("Player not ready for speed change");
-                return;
-            }
-            
+            if (!player || typeof player.setPlaybackRate !== 'function') return;
             const rate = parseFloat(speedRange.value);
-            console.log("Setting speed to:", rate);
-            
-            // 嘗試設定速度
             player.setPlaybackRate(rate);
-            
-            // 雙重檢查：如果設定失敗，可能是影片還沒開始，我們不做額外處理，
-            // 因為 onPlayerStateChange 會在影片開始時再次呼叫這裡。
         }
 
         function toggleSidebar() {
             sidebar.classList.toggle('collapsed');
+            
+            // 更新按鈕圖示
+            if (sidebar.classList.contains('collapsed')) {
+                // 收起狀態
+                toggleIcon.className = (window.innerWidth <= 768) ? "fa-solid fa-bars" : "fa-solid fa-chevron-right";
+            } else {
+                // 展開狀態
+                toggleIcon.className = "fa-solid fa-chevron-left";
+            }
+        }
+
+        // 手機版功能：點擊主要內容區時，如果側邊欄是開的，就把它關掉
+        function closeSidebarOnMobile() {
+            if (window.innerWidth <= 768 && !sidebar.classList.contains('collapsed')) {
+                sidebar.classList.add('collapsed');
+                toggleIcon.className = "fa-solid fa-bars";
+            }
         }
 
         document.addEventListener('keydown', (e) => {
